@@ -1,4 +1,6 @@
 <resources>
     <string name="app_name">BasicGoogleMapSample</string>
     <string name="title_activity_maps">Map</string>
+
+    <string name="map_not_ready">Map is not ready yet</string>
 </resources>
