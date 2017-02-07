@@ -6,13 +6,17 @@ import android.net.Uri;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.AppCompatButton;
 import android.util.Log;
+import android.view.View;
 import android.widget.Toast;
 
 import com.carlitosdroid.basicgooglemapsample.listener.OnClickLocationListener;
 import com.carlitosdroid.basicgooglemapsample.util.PermissionUtils;
+import com.carlitosdroid.basicgooglemapsample.view.dialog_fragment.LocationNeededDialogFragment;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -24,6 +28,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
     private GoogleMap mMap;
+    private AppCompatButton btnPermission;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,7 +37,17 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
+
+        btnPermission = (AppCompatButton) findViewById(R.id.btnPermission);
         mapFragment.getMapAsync(this);
+
+
+        btnPermission.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                updateMyLocation();
+            }
+        });
     }
 
     /**
@@ -47,8 +62,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-        updateMyLocation();
-
 
         // Add a marker in Sydney and move the camera
         LatLng sydney = new LatLng(-34, 151);
@@ -83,16 +96,22 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode != LOCATION_PERMISSION_REQUEST_CODE) {
-            return;
-        }
-
-        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
-                == PackageManager.PERMISSION_GRANTED) {
-            mMap.setMyLocationEnabled(true);
-            Toast.makeText(this, "true ", Toast.LENGTH_SHORT).show();
-        } else {
-            Toast.makeText(this, "false ", Toast.LENGTH_SHORT).show();
+        if(grantResults[0] == PackageManager.PERMISSION_GRANTED){
+            if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
+                    == PackageManager.PERMISSION_GRANTED) {
+                mMap.setMyLocationEnabled(true);
+            }
+        }else if (grantResults[0] == PackageManager.PERMISSION_DENIED){
+            // Should we show an explanation?
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this, android.Manifest.permission.ACCESS_FINE_LOCATION)) {
+                // Display a dialog with rationale.
+                Toast.makeText(this, "necesitamos permisos de localización", Toast.LENGTH_SHORT).show();
+            }else{
+                //Never ask again selected, or device policy prohibits the app from having that permission.
+                //So, disable that feature, or fall back to another situation...
+                LocationNeededDialogFragment.newInstance()
+                    .show(getSupportFragmentManager(), "dialog");
+            }
         }
     }
 

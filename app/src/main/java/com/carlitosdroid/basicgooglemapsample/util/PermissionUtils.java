@@ -20,17 +20,9 @@ public class PermissionUtils {
      */
     public static void requestPermission(AppCompatActivity activity, int requestId,
                                          String permission) {
-        if (ActivityCompat.shouldShowRequestPermissionRationale(activity, permission)) {
-            // Display a dialog with rationale.
-            Log.e("VEAMOS 1111","VEAMOS 1111");
-            ActivityCompat.requestPermissions(activity, new String[]{permission}, requestId);
-        } else {
-            Log.e("VEAMOS 2222","VEAMOS 2222");
-            // Location permission has not been granted yet, request it.
-            ActivityCompat.requestPermissions(activity, new String[]{permission}, requestId);
-//            LocationNeededDialogFragment.newInstance(requestId)
-//                    .show(activity.getSupportFragmentManager(), "dialog");
-        }
+
+        ActivityCompat.requestPermissions(activity, new String[]{permission}, requestId);
+
     }
 
     /**
