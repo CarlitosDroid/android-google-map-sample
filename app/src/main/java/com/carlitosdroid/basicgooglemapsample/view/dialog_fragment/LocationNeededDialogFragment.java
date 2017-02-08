@@ -59,5 +59,4 @@ public class LocationNeededDialogFragment extends DialogFragment implements View
         getDialog().dismiss();
         onClickLocationListener.onShowLocationPermission();
     }
-
 }

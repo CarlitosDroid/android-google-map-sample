@@ -1,5 +1,6 @@
 package com.carlitosdroid.basicgooglemapsample;
 
+import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -10,13 +11,11 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatButton;
-import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
 import com.carlitosdroid.basicgooglemapsample.listener.OnClickLocationListener;
 import com.carlitosdroid.basicgooglemapsample.util.PermissionUtils;
-import com.carlitosdroid.basicgooglemapsample.view.dialog_fragment.LocationNeededDialogFragment;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -28,7 +27,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
     private GoogleMap mMap;
-    private AppCompatButton btnPermission;
+    private AppCompatButton btnLocationPermission;
+
+    private boolean mShowPermissionDeniedDialog = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,11 +39,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
 
-        btnPermission = (AppCompatButton) findViewById(R.id.btnPermission);
+        btnLocationPermission = (AppCompatButton) findViewById(R.id.btnLocationPermission);
         mapFragment.getMapAsync(this);
 
 
-        btnPermission.setOnClickListener(new View.OnClickListener() {
+        btnLocationPermission.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 updateMyLocation();
@@ -96,22 +97,35 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if(grantResults[0] == PackageManager.PERMISSION_GRANTED){
-            if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
-                    == PackageManager.PERMISSION_GRANTED) {
-                mMap.setMyLocationEnabled(true);
+        for (int i = 0; i < permissions.length; i++) {
+            if (permissions[i].equals(android.Manifest.permission.ACCESS_FINE_LOCATION)) {
+                if (grantResults[i] == PackageManager.PERMISSION_GRANTED) {
+                    mMap.setMyLocationEnabled(true);
+                }else{
+                    // Should we show an explanation?
+                    if (ActivityCompat.shouldShowRequestPermissionRationale(this, android.Manifest.permission.ACCESS_FINE_LOCATION)) {
+                        // Display a dialog with rationale.
+                        Toast.makeText(this, "we need your location's permission", Toast.LENGTH_SHORT).show();
+                    } else{
+                        mShowPermissionDeniedDialog = true;
+                    }
+                }
+            } else if (permissions[i].equals(Manifest.permission.CAMERA)) {
+                if (grantResults[i] == PackageManager.PERMISSION_GRANTED) {
+
+                    Toast.makeText(this, "CAMERA", Toast.LENGTH_SHORT).show();
+                }
             }
-        }else if (grantResults[0] == PackageManager.PERMISSION_DENIED){
-            // Should we show an explanation?
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this, android.Manifest.permission.ACCESS_FINE_LOCATION)) {
-                // Display a dialog with rationale.
-                Toast.makeText(this, "necesitamos permisos de localización", Toast.LENGTH_SHORT).show();
-            }else{
-                //Never ask again selected, or device policy prohibits the app from having that permission.
-                //So, disable that feature, or fall back to another situation...
-                LocationNeededDialogFragment.newInstance()
-                    .show(getSupportFragmentManager(), "dialog");
-            }
+        }
+    }
+
+    @Override
+    protected void onResumeFragments() {
+        super.onResumeFragments();
+        if(mShowPermissionDeniedDialog){
+//            LocationNeededDialogFragment.newInstance()
+//                    .show(getSupportFragmentManager(), "dialog");
+            mShowPermissionDeniedDialog = false;
         }
     }
 

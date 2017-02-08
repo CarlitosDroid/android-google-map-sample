@@ -4,6 +4,7 @@ import android.content.pm.PackageManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.carlitosdroid.basicgooglemapsample.view.dialog_fragment.LocationNeededDialogFragment;
 
@@ -14,15 +15,16 @@ import com.carlitosdroid.basicgooglemapsample.view.dialog_fragment.LocationNeede
 
 public class PermissionUtils {
 
-    /**
-     * Requests the fine location permission. If a rationale with an additional explanation should
-     * be shown to the user, displays a dialog that triggers the request.
-     */
-    public static void requestPermission(AppCompatActivity activity, int requestId,
-                                         String permission) {
 
-        ActivityCompat.requestPermissions(activity, new String[]{permission}, requestId);
-
+    public static void requestPermission(AppCompatActivity appCompatActivity, int requestId,
+                                                 String permission){
+        if(ActivityCompat.shouldShowRequestPermissionRationale(appCompatActivity, permission)){
+            ActivityCompat.requestPermissions(appCompatActivity, new String[]{permission}, requestId);
+        }else{
+            LocationNeededDialogFragment.newInstance()
+                    .show(appCompatActivity.getSupportFragmentManager(), "dialog");
+            ActivityCompat.requestPermissions(appCompatActivity, new String[]{permission}, requestId);
+        }
     }
 
     /**
