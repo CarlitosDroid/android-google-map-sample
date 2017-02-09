@@ -21,17 +21,17 @@
         android:layout_gravity="bottom">
 
         <android.support.v7.widget.AppCompatButton
-            android:id="@+id/btnLocationPermission"
+            android:id="@+id/btnLocation"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="location"
             android:layout_weight="1" />
 
         <android.support.v7.widget.AppCompatButton
-            android:id="@+id/btnCameraPermission"
+            android:id="@+id/btnRecordAudio"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="camera"
+            android:text="record audio"
             android:layout_weight="1" />
     </LinearLayout>
 </FrameLayout>

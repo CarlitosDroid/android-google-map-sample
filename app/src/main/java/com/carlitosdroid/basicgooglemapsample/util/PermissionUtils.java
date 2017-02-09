@@ -15,16 +15,21 @@ import com.carlitosdroid.basicgooglemapsample.view.dialog_fragment.LocationNeede
 
 public class PermissionUtils {
 
-
     public static void requestPermission(AppCompatActivity appCompatActivity, int requestId,
-                                                 String permission){
-        if(ActivityCompat.shouldShowRequestPermissionRationale(appCompatActivity, permission)){
-            ActivityCompat.requestPermissions(appCompatActivity, new String[]{permission}, requestId);
-        }else{
-            LocationNeededDialogFragment.newInstance()
-                    .show(appCompatActivity.getSupportFragmentManager(), "dialog");
-            ActivityCompat.requestPermissions(appCompatActivity, new String[]{permission}, requestId);
-        }
+                                         String permission) {
+
+        ActivityCompat.requestPermissions(appCompatActivity, new String[]{permission}, requestId);
+
+//        if (ActivityCompat.shouldShowRequestPermissionRationale(appCompatActivity, permission)) {
+//            if(mShowPermissionDeniedDialog){
+//                LocationNeededDialogFragment.newInstance()
+//                        .show(appCompatActivity.getSupportFragmentManager(), "dialog");
+//            }else{
+//                ActivityCompat.requestPermissions(appCompatActivity, new String[]{permission}, requestId);
+//            }
+//        } else {
+//            ActivityCompat.requestPermissions(appCompatActivity, new String[]{permission}, requestId);
+//        }
     }
 
     /**

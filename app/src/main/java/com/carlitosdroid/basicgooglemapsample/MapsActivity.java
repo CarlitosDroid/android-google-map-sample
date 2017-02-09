@@ -16,6 +16,7 @@ import android.widget.Toast;
 
 import com.carlitosdroid.basicgooglemapsample.listener.OnClickLocationListener;
 import com.carlitosdroid.basicgooglemapsample.util.PermissionUtils;
+import com.carlitosdroid.basicgooglemapsample.view.dialog_fragment.LocationNeededDialogFragment;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -23,11 +24,12 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback, OnClickLocationListener {
+public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback, OnClickLocationListener, View.OnClickListener {
 
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
     private GoogleMap mMap;
-    private AppCompatButton btnLocationPermission;
+    private AppCompatButton btnLocation;
+    private AppCompatButton btnRecordAudio;
 
     private boolean mShowPermissionDeniedDialog = false;
 
@@ -38,17 +40,13 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
-
-        btnLocationPermission = (AppCompatButton) findViewById(R.id.btnLocationPermission);
         mapFragment.getMapAsync(this);
 
+        btnLocation = (AppCompatButton) findViewById(R.id.btnLocation);
+        btnRecordAudio = (AppCompatButton) findViewById(R.id.btnRecordAudio);
 
-        btnLocationPermission.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                updateMyLocation();
-            }
-        });
+        btnLocation.setOnClickListener(this);
+        btnRecordAudio.setOnClickListener(this);
     }
 
     /**
@@ -83,8 +81,14 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             // Uncheck the box until the layer has been enabled and request missing permission.
             PermissionUtils.requestPermission(this, LOCATION_PERMISSION_REQUEST_CODE,
                     android.Manifest.permission.ACCESS_FINE_LOCATION);
+
         }
     }
+
+    private void startRecordAudio() {
+        Toast.makeText(this, "starting...", Toast.LENGTH_SHORT).show();
+    }
+
 
     private boolean checkReady() {
         if (mMap == null) {
@@ -101,12 +105,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             if (permissions[i].equals(android.Manifest.permission.ACCESS_FINE_LOCATION)) {
                 if (grantResults[i] == PackageManager.PERMISSION_GRANTED) {
                     mMap.setMyLocationEnabled(true);
-                }else{
+                } else {
                     // Should we show an explanation?
                     if (ActivityCompat.shouldShowRequestPermissionRationale(this, android.Manifest.permission.ACCESS_FINE_LOCATION)) {
                         // Display a dialog with rationale.
                         Toast.makeText(this, "we need your location's permission", Toast.LENGTH_SHORT).show();
-                    } else{
+                    } else {
                         mShowPermissionDeniedDialog = true;
                     }
                 }
@@ -122,9 +126,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     protected void onResumeFragments() {
         super.onResumeFragments();
-        if(mShowPermissionDeniedDialog){
-//            LocationNeededDialogFragment.newInstance()
-//                    .show(getSupportFragmentManager(), "dialog");
+        if (mShowPermissionDeniedDialog) {
+            LocationNeededDialogFragment.newInstance()
+                    .show(getSupportFragmentManager(), "dialog");
             mShowPermissionDeniedDialog = false;
         }
     }
@@ -141,4 +145,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         startActivityForResult(intent, 0);
     }
 
+    @Override
+    public void onClick(View v) {
+        if (v.getId() == R.id.btnLocation) {
+            updateMyLocation();
+        } else {
+            startRecordAudio();
+        }
+    }
 }
