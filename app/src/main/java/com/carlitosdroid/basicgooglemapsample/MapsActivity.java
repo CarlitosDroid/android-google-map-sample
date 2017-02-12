@@ -11,6 +11,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatButton;
+import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
@@ -27,11 +28,15 @@ import com.google.android.gms.maps.model.MarkerOptions;
 public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback, OnClickLocationListener, View.OnClickListener {
 
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
+    private static final int ALL_PERMISSION_REQUEST_CODE = 3;
+
     private GoogleMap mMap;
     private AppCompatButton btnLocation;
     private AppCompatButton btnRecordAudio;
 
     private boolean mShowPermissionDeniedDialog = false;
+
+    private String[] permissions = {Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.RECORD_AUDIO};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,6 +52,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         btnLocation.setOnClickListener(this);
         btnRecordAudio.setOnClickListener(this);
+
+        ActivityCompat.requestPermissions(this, permissions, ALL_PERMISSION_REQUEST_CODE);
     }
 
     /**
@@ -61,38 +68,18 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-
         // Add a marker in Sydney and move the camera
         LatLng sydney = new LatLng(-34, 151);
         mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
         mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
     }
 
-    private void updateMyLocation() {
-        if (!checkReady()) {
-            return;
-        }
-
-        // Enable the location layer. Request the location permission if needed.
-        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
-                == PackageManager.PERMISSION_GRANTED) {
-            mMap.setMyLocationEnabled(true);
-        } else {
-            // Uncheck the box until the layer has been enabled and request missing permission.
-            PermissionUtils.requestPermission(this, LOCATION_PERMISSION_REQUEST_CODE,
-                    android.Manifest.permission.ACCESS_FINE_LOCATION);
-
-        }
-    }
-
     private void startRecordAudio() {
         Toast.makeText(this, "starting...", Toast.LENGTH_SHORT).show();
     }
 
-
     private boolean checkReady() {
         if (mMap == null) {
-            Toast.makeText(this, getString(R.string.map_not_ready), Toast.LENGTH_SHORT).show();
             return false;
         }
         return true;
@@ -104,20 +91,17 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         for (int i = 0; i < permissions.length; i++) {
             if (permissions[i].equals(android.Manifest.permission.ACCESS_FINE_LOCATION)) {
                 if (grantResults[i] == PackageManager.PERMISSION_GRANTED) {
-                    mMap.setMyLocationEnabled(true);
-                } else {
-                    // Should we show an explanation?
-                    if (ActivityCompat.shouldShowRequestPermissionRationale(this, android.Manifest.permission.ACCESS_FINE_LOCATION)) {
-                        // Display a dialog with rationale.
-                        Toast.makeText(this, "we need your location's permission", Toast.LENGTH_SHORT).show();
-                    } else {
-                        mShowPermissionDeniedDialog = true;
+                    if(!mMap.isMyLocationEnabled()){
+                        mMap.setMyLocationEnabled(true);
                     }
+                    btnLocation.setVisibility(View.GONE);
                 }
-            } else if (permissions[i].equals(Manifest.permission.CAMERA)) {
+            } else if (permissions[i].equals(Manifest.permission.RECORD_AUDIO)) {
                 if (grantResults[i] == PackageManager.PERMISSION_GRANTED) {
 
-                    Toast.makeText(this, "CAMERA", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "ACCEPTED RECORD AUDIO PERMISSION", Toast.LENGTH_SHORT).show();
+                }else{
+                    Toast.makeText(this, "we need permission RECORD_AUDIO" , Toast.LENGTH_SHORT).show();
                 }
             }
         }
@@ -126,10 +110,16 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     protected void onResumeFragments() {
         super.onResumeFragments();
-        if (mShowPermissionDeniedDialog) {
-            LocationNeededDialogFragment.newInstance()
-                    .show(getSupportFragmentManager(), "dialog");
-            mShowPermissionDeniedDialog = false;
+        if (!checkReady()) {
+            return;
+        }
+
+        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED) {
+            if(!mMap.isMyLocationEnabled()){
+                mMap.setMyLocationEnabled(true);
+            }
+            btnLocation.setVisibility(View.GONE);
         }
     }
 
@@ -143,6 +133,29 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         Uri uri = Uri.fromParts("package", getPackageName(), null);
         intent.setData(uri);
         startActivityForResult(intent, 0);
+    }
+
+    private void updateMyLocation() {
+        if (!checkReady()) {
+            return;
+        }
+
+        // Enable the location layer. Request the location permission if needed.
+        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED) {
+            if(!mMap.isMyLocationEnabled()){
+                mMap.setMyLocationEnabled(true);
+            }
+            btnLocation.setVisibility(View.GONE);
+        } else {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this, android.Manifest.permission.ACCESS_FINE_LOCATION)) {
+                // Display a dialog with rationale.
+                ActivityCompat.requestPermissions(this, permissions, ALL_PERMISSION_REQUEST_CODE);
+            } else {
+                LocationNeededDialogFragment.newInstance()
+                        .show(getSupportFragmentManager(), "dialog");
+            }
+        }
     }
 
     @Override
