@@ -3,10 +3,12 @@ package com.carlitosdroid.basicgooglemapsample;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.ColorStateList;
 import android.net.Uri;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -31,8 +33,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private static final int ALL_PERMISSION_REQUEST_CODE = 3;
 
     private GoogleMap mMap;
-    private AppCompatButton btnLocation;
-    private AppCompatButton btnRecordAudio;
+    private FloatingActionButton fabLocationPermission;
+    private FloatingActionButton fabRecordAudioPermission;
 
     private boolean mShowPermissionDeniedDialog = false;
 
@@ -47,12 +49,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-        btnLocation = (AppCompatButton) findViewById(R.id.btnLocation);
-        btnRecordAudio = (AppCompatButton) findViewById(R.id.btnRecordAudio);
+        fabLocationPermission = (FloatingActionButton) findViewById(R.id.fabLocationPermission);
+        fabRecordAudioPermission = (FloatingActionButton) findViewById(R.id.fabRecordAudioPermission);
 
-        btnLocation.setOnClickListener(this);
-        btnRecordAudio.setOnClickListener(this);
-
+        fabLocationPermission.setOnClickListener(this);
+        fabRecordAudioPermission.setOnClickListener(this);
         ActivityCompat.requestPermissions(this, permissions, ALL_PERMISSION_REQUEST_CODE);
     }
 
@@ -74,10 +75,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
     }
 
-    private void startRecordAudio() {
-        Toast.makeText(this, "starting...", Toast.LENGTH_SHORT).show();
-    }
-
     private boolean checkReady() {
         if (mMap == null) {
             return false;
@@ -94,14 +91,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     if(!mMap.isMyLocationEnabled()){
                         mMap.setMyLocationEnabled(true);
                     }
-                    btnLocation.setVisibility(View.GONE);
+                    fabLocationPermission.setVisibility(View.GONE);
                 }
             } else if (permissions[i].equals(Manifest.permission.RECORD_AUDIO)) {
                 if (grantResults[i] == PackageManager.PERMISSION_GRANTED) {
-
-                    Toast.makeText(this, "ACCEPTED RECORD AUDIO PERMISSION", Toast.LENGTH_SHORT).show();
-                }else{
-                    Toast.makeText(this, "we need permission RECORD_AUDIO" , Toast.LENGTH_SHORT).show();
+                    fabRecordAudioPermission.setImageResource(R.drawable.ic_mic_white_24dp);
+                    fabRecordAudioPermission.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.md_yellow_500)));
                 }
             }
         }
@@ -110,6 +105,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     protected void onResumeFragments() {
         super.onResumeFragments();
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
+                == PackageManager.PERMISSION_GRANTED) {
+            fabRecordAudioPermission.setImageResource(R.drawable.ic_mic_white_24dp);
+            fabRecordAudioPermission.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.md_yellow_500)));
+        }
+
         if (!checkReady()) {
             return;
         }
@@ -119,7 +120,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             if(!mMap.isMyLocationEnabled()){
                 mMap.setMyLocationEnabled(true);
             }
-            btnLocation.setVisibility(View.GONE);
+            fabLocationPermission.setVisibility(View.GONE);
         }
     }
 
@@ -146,7 +147,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             if(!mMap.isMyLocationEnabled()){
                 mMap.setMyLocationEnabled(true);
             }
-            btnLocation.setVisibility(View.GONE);
+            fabLocationPermission.setVisibility(View.GONE);
         } else {
             if (ActivityCompat.shouldShowRequestPermissionRationale(this, android.Manifest.permission.ACCESS_FINE_LOCATION)) {
                 // Display a dialog with rationale.
@@ -158,12 +159,33 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
+    private void startRecordAudio() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
+                == PackageManager.PERMISSION_GRANTED) {
+
+            Toast.makeText(this, "EMEPZAMOS", Toast.LENGTH_SHORT).show();
+
+        } else {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this, android.Manifest.permission.RECORD_AUDIO)) {
+                // Display a dialog with rationale.
+                ActivityCompat.requestPermissions(this, permissions, ALL_PERMISSION_REQUEST_CODE);
+            } else {
+
+                LocationNeededDialogFragment.newInstance()
+                        .show(getSupportFragmentManager(), "dialog");
+            }
+        }
+    }
+
     @Override
     public void onClick(View v) {
-        if (v.getId() == R.id.btnLocation) {
-            updateMyLocation();
-        } else {
-            startRecordAudio();
+        switch (v.getId()){
+            case R.id.fabLocationPermission:
+                updateMyLocation();
+                break;
+            case R.id.fabRecordAudioPermission:
+                startRecordAudio();
+                break;
         }
     }
 }
