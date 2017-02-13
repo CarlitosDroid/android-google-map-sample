@@ -12,13 +12,10 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.AppCompatButton;
-import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
 import com.carlitosdroid.basicgooglemapsample.listener.OnClickLocationListener;
-import com.carlitosdroid.basicgooglemapsample.util.PermissionUtils;
 import com.carlitosdroid.basicgooglemapsample.view.dialog_fragment.LocationNeededDialogFragment;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -35,8 +32,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private GoogleMap mMap;
     private FloatingActionButton fabLocationPermission;
     private FloatingActionButton fabRecordAudioPermission;
-
-    private boolean mShowPermissionDeniedDialog = false;
 
     private String[] permissions = {Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.RECORD_AUDIO};
 
@@ -96,7 +91,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             } else if (permissions[i].equals(Manifest.permission.RECORD_AUDIO)) {
                 if (grantResults[i] == PackageManager.PERMISSION_GRANTED) {
                     fabRecordAudioPermission.setImageResource(R.drawable.ic_mic_white_24dp);
-                    fabRecordAudioPermission.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.md_yellow_500)));
+                    fabRecordAudioPermission.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.md_deep_orange_500)));
                 }
             }
         }
@@ -108,7 +103,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
                 == PackageManager.PERMISSION_GRANTED) {
             fabRecordAudioPermission.setImageResource(R.drawable.ic_mic_white_24dp);
-            fabRecordAudioPermission.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.md_yellow_500)));
+            fabRecordAudioPermission.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.md_deep_orange_500)));
         }
 
         if (!checkReady()) {
@@ -153,8 +148,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 // Display a dialog with rationale.
                 ActivityCompat.requestPermissions(this, permissions, ALL_PERMISSION_REQUEST_CODE);
             } else {
-                LocationNeededDialogFragment.newInstance()
-                        .show(getSupportFragmentManager(), "dialog");
+                showDialogPermissionSettings("Active los permisos de localización");
             }
         }
     }
@@ -170,11 +164,14 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 // Display a dialog with rationale.
                 ActivityCompat.requestPermissions(this, permissions, ALL_PERMISSION_REQUEST_CODE);
             } else {
-
-                LocationNeededDialogFragment.newInstance()
-                        .show(getSupportFragmentManager(), "dialog");
+                showDialogPermissionSettings("Active los permisos de grabar voz");
             }
         }
+    }
+
+    private void showDialogPermissionSettings(String message){
+        LocationNeededDialogFragment.newInstance(message)
+                .show(getSupportFragmentManager(), "dialog");
     }
 
     @Override

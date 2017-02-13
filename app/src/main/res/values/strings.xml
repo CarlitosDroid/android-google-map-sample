@@ -4,4 +4,6 @@
 
     <string name="map_not_ready">Map is not ready yet</string>
     <string name="title_activity_test">TestActivity</string>
+    <string name="title_activity_main2">Main2Activity</string>
+    <string name="title_activity_maps2">Map</string>
 </resources>

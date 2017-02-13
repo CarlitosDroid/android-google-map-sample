@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.widget.AppCompatButton;
+import android.support.v7.widget.AppCompatTextView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,10 +18,16 @@ import com.carlitosdroid.basicgooglemapsample.listener.OnClickLocationListener;
 public class LocationNeededDialogFragment extends DialogFragment implements View.OnClickListener{
 
     AppCompatButton btnLocationNeeded;
+    AppCompatTextView lblMessageBody;
     OnClickLocationListener onClickLocationListener;
+    private String message;
 
-    public static LocationNeededDialogFragment newInstance(){
-        return new LocationNeededDialogFragment();
+    public static LocationNeededDialogFragment newInstance(String message){
+        LocationNeededDialogFragment locationNeededDialogFragment = new LocationNeededDialogFragment();
+        Bundle bundle = new Bundle();
+        bundle.putString("message", message);
+        locationNeededDialogFragment.setArguments(bundle);
+        return locationNeededDialogFragment;
     }
 
     @Override
@@ -42,6 +49,7 @@ public class LocationNeededDialogFragment extends DialogFragment implements View
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        message = getArguments().getString("message");
     }
 
     @Nullable
@@ -50,6 +58,8 @@ public class LocationNeededDialogFragment extends DialogFragment implements View
         View view = inflater.inflate(R.layout.dialog_fragment_location_needed, container, false);
         getDialog().getWindow().requestFeature(Window.FEATURE_NO_TITLE);
         btnLocationNeeded = (AppCompatButton) view.findViewById(R.id.btnLocationNeeded);
+        lblMessageBody = (AppCompatTextView) view.findViewById(R.id.lblMessageBody);
+        lblMessageBody.setText(message);
         btnLocationNeeded.setOnClickListener(this);
         return view;
     }

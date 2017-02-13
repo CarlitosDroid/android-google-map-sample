@@ -1,28 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v7.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical" android:layout_width="match_parent"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:gravity="bottom">
+    android:gravity="center"
+    android:padding="10dp">
 
-    <android.support.v7.widget.LinearLayoutCompat
-        android:orientation="horizontal"
+    <android.support.v7.widget.AppCompatTextView
+        android:id="@+id/lblMessageBody"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:gravity="center">
-
-        <android.support.v7.widget.AppCompatImageView
-            android:layout_width="120dp"
-            android:layout_height="120dp"
-            app:srcCompat="@drawable/ic_gps_fixed_cyan_900_48dp"
-            android:id="@+id/imageView" />
-    </android.support.v7.widget.LinearLayoutCompat>
+        android:layout_height="45dp"
+        android:text="MESSAGE BODY"
+        android:textSize="16sp"
+        android:gravity="center"/>
 
     <android.support.v7.widget.AppCompatButton
-        android:text="Activar permisos de localización"
+        android:text="open settings"
         android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:layout_margin="10dp"
-        android:id="@+id/btnLocationNeeded"/>
-</android.support.v7.widget.LinearLayoutCompat>
+        android:layout_height="35dp"
+        android:textSize="15sp"
+        android:id="@+id/btnLocationNeeded"
+        android:background="@android:color/transparent"/>
+
+</LinearLayout>

@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    tools:context="com.carlitosdroid.basicgooglemapsample.TestActivity">
+    tools:context="com.carlitosdroid.basicgooglemapsample.MapsActivity">
 
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
@@ -21,8 +21,7 @@
 
     </android.support.design.widget.AppBarLayout>
 
-    <include layout="@layout/content_test"
-        android:id="@+id/include" />
+    <include layout="@layout/content_maps"/>
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fabRecordAudioPermission"
@@ -38,11 +37,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/fab_margin"
-        android:layout_gravity="top|right"
+        android:layout_gravity="bottom|start"
         app:backgroundTint="@color/md_blue_500"
-        app:srcCompat="@drawable/ic_location_on_white_24dp"
-        app:layout_anchor="@+id/include"
-        app:layout_anchorGravity="bottom|left" />
+        app:srcCompat="@drawable/ic_location_on_white_24dp" />
 
 </android.support.design.widget.CoordinatorLayout>
 
