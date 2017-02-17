@@ -27,7 +27,7 @@
         android:id="@+id/fabRecordAudioPermission"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
+        android:layout_gravity="bottom|center"
         android:layout_margin="@dimen/fab_margin"
         app:backgroundTint="@color/md_teal_500"
         app:srcCompat="@drawable/ic_mic_off_white_24dp" />
