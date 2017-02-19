@@ -4,24 +4,36 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.provider.Settings;
+import android.support.annotation.ColorInt;
+import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.res.ResourcesCompat;
+import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Toast;
 
 import com.carlitosdroid.basicgooglemapsample.listener.OnClickLocationListener;
+import com.carlitosdroid.basicgooglemapsample.util.GeneralUtils;
 import com.carlitosdroid.basicgooglemapsample.view.dialog_fragment.LocationNeededDialogFragment;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback, OnClickLocationListener,
@@ -33,8 +45,23 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private GoogleMap mMap;
     private FloatingActionButton fabLocationPermission;
     private FloatingActionButton fabRecordAudioPermission;
+    private FloatingActionButton fabTest;
 
     private String[] permissions = {Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.RECORD_AUDIO};
+
+
+    private static final LatLng STREET6 = new LatLng(-12.042841, -77.036074);
+
+    private static final LatLng STREET4 = new LatLng(-12.005730, -77.013797);
+
+    private static final LatLng STREET5 = new LatLng(-12.038683, -76.975863);
+
+    private static final LatLng STREET2 = new LatLng(-11.958045, -77.004748);
+
+    private static final LatLng STREET1 = new LatLng(-11.983669, -77.006505);
+
+    private static final LatLng STREET3 = new LatLng(-11.947511, -76.985202);
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,9 +74,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         fabLocationPermission = (FloatingActionButton) findViewById(R.id.fabLocationPermission);
         fabRecordAudioPermission = (FloatingActionButton) findViewById(R.id.fabRecordAudioPermission);
+        fabTest = (FloatingActionButton) findViewById(R.id.fabTest);
 
         fabLocationPermission.setOnClickListener(this);
         fabRecordAudioPermission.setOnClickListener(this);
+        fabTest.setOnClickListener(this);
         ActivityCompat.requestPermissions(this, permissions, ALL_PERMISSION_REQUEST_CODE);
     }
 
@@ -66,12 +95,51 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
-        mMap.getUiSettings().setZoomControlsEnabled(true);
+        mMap.getUiSettings().setZoomControlsEnabled(false);
 
         // Add a marker in Sydney and move the camera
-        LatLng sydney = new LatLng(-34, 151);
-        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+//        LatLng sydney = new LatLng(-34, 151);
+//        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
+//        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+
+        // Uses a colored icon.
+        mMap.addMarker(new MarkerOptions()
+                .position(STREET1)
+                .title("Brisbane")
+                .snippet("Population: 2,074,200")
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
+        // Uses a custom icon with the info window popping out of the center of the icon.
+        mMap.addMarker(new MarkerOptions()
+                .position(STREET2)
+                .title("Sydney")
+                .snippet("Population: 4,627,300")
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_favorite_red_500_48dp))
+                .infoWindowAnchor(0.5f, 0.5f));
+
+        // Creates a draggable marker. Long press to drag.
+        mMap.addMarker(new MarkerOptions()
+                .position(STREET3)
+                .title("Melbourne")
+                .snippet("Population: 4,137,400")
+                .draggable(true));
+        mMap.setContentDescription("Map with lots of markers.");
+
+        // Creates a draggable marker. Long press to drag.
+        mMap.addMarker(new MarkerOptions()
+                .position(STREET4)
+                .title("Brisbane")
+                .snippet("Population: 2,074,200")
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET)));
+        mMap.addMarker(new MarkerOptions()
+                .position(STREET5)
+                .title("Adelaide")
+                .snippet("Population: 1,213,000"));
+
+        // Vector drawable resource as a marker icon.
+        mMap.addMarker(new MarkerOptions()
+                .position(STREET6)
+                .icon(GeneralUtils.vectorToBitmap(this, R.drawable.ic_android_white_48dp, ContextCompat.getColor(this, R.color.md_teal_500)))
+                .title("Alice Springs"));
     }
 
     private boolean checkReady() {
@@ -87,7 +155,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         for (int i = 0; i < permissions.length; i++) {
             if (permissions[i].equals(android.Manifest.permission.ACCESS_FINE_LOCATION)) {
                 if (grantResults[i] == PackageManager.PERMISSION_GRANTED) {
-                    if(!mMap.isMyLocationEnabled()){
+                    if (!mMap.isMyLocationEnabled()) {
                         mMap.setMyLocationEnabled(true);
                     }
                     fabLocationPermission.setVisibility(View.GONE);
@@ -116,7 +184,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
-            if(!mMap.isMyLocationEnabled()){
+            if (!mMap.isMyLocationEnabled()) {
                 mMap.setMyLocationEnabled(true);
             }
             fabLocationPermission.setVisibility(View.GONE);
@@ -143,7 +211,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         // Enable the location layer. Request the location permission if needed.
         if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
-            if(!mMap.isMyLocationEnabled()){
+            if (!mMap.isMyLocationEnabled()) {
                 mMap.setMyLocationEnabled(true);
             }
             fabLocationPermission.setVisibility(View.GONE);
@@ -173,19 +241,29 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
-    private void showDialogPermissionSettings(String message){
+    private void showDialogPermissionSettings(String message) {
         LocationNeededDialogFragment.newInstance(message)
                 .show(getSupportFragmentManager(), "dialog");
     }
 
     @Override
     public void onClick(View v) {
-        switch (v.getId()){
+        switch (v.getId()) {
             case R.id.fabLocationPermission:
                 updateMyLocation();
                 break;
             case R.id.fabRecordAudioPermission:
                 startRecordAudio();
+                break;
+            case R.id.fabTest:
+                LatLngBounds bounds = new LatLngBounds.Builder()
+                        .include(STREET1)
+                        .include(STREET2)
+                        .include(STREET4)
+                        .include(STREET5)
+                        .include(STREET6)
+                        .build();
+                mMap.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, 50));
                 break;
         }
     }
